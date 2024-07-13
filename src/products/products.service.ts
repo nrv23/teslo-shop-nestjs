@@ -2,7 +2,6 @@ import {
   BadRequestException,
   Injectable,
   InternalServerErrorException,
-  Logger,
   NotFoundException,
 } from '@nestjs/common';
 import { CreateProductDto } from './dto/create-product.dto';
@@ -12,11 +11,12 @@ import { Product } from './entities/product.entity';
 import { Repository } from 'typeorm';
 import { PaginationDto } from 'src/common/dto/pagination.dto';
 import { validate as isUUID } from 'uuid';
+import { LoggerConfig } from 'src/common/config/logger';
 
 
 @Injectable()
 export class ProductsService {
-  private readonly logger = new Logger('Product.service');
+  private readonly logger = new LoggerConfig('Product.service');
 
   constructor(
     // inyeccion de dependencias mediante repositorios
@@ -90,7 +90,7 @@ export class ProductsService {
   }
 
   private handleDbExecptions(error: any) {
-    this.logger.error(error);
+    this.logger.showLog.error(error);
     if (error.code === '23505') throw new BadRequestException(error.detail);
     throw new InternalServerErrorException(error);
   }
