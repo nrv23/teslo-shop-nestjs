@@ -11,6 +11,7 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { Product } from './entities/product.entity';
 import { Repository } from 'typeorm';
 import { PaginationDto } from 'src/common/dto/pagination.dto';
+import { validate as isUUID } from 'uuid';
 
 
 @Injectable()
@@ -43,24 +44,49 @@ export class ProductsService {
     });
   }
 
-  async findOne(id: string) {
-    const product = await this.productRepository.findOneBy({
-      id,
-    });
+  async findOne(term: string) {
+
+    let product: Product;
+
+    if (isUUID(term)) {
+      product = await this.productRepository.findOneBy({
+        id: term
+      })
+    } else {
+      const queryBuilder = this.productRepository.createQueryBuilder();
+      product = await queryBuilder.where('title =:title or slug = :slug', {
+        title: term,
+        slug: term
+      }).getOne();
+    }
 
     if (!product)
-      throw new NotFoundException(`product with id or slug "${id}" not found`);
+      throw new NotFoundException(`product with term or slug "${term}" not found`);
 
     return product;
   }
 
-  update(id: number, updateProductDto: UpdateProductDto) {
-    return `This action updates a #${id} product`;
+  async update(id: string, updateProductDto: UpdateProductDto) {
+
+    try {
+
+      const product = await this.productRepository.preload({
+        id,
+        ...updateProductDto
+      });
+
+      if (!product) throw new NotFoundException(`product with id "${id}" not found`);
+      await this.productRepository.save(product);
+      return product;
+
+    } catch (error) {
+      this.handleDbExecptions(error);
+    }
   }
 
   async remove(id: string) {
-    const productdeleted = await this.productRepository.delete({id});
-    if(productdeleted.affected === 0) throw new NotFoundException(`product with id or slug "${id}" not found`);
+    const productdeleted = await this.productRepository.delete({ id });
+    if (productdeleted.affected === 0) throw new NotFoundException(`product with id or slug "${id}" not found`);
   }
 
   private handleDbExecptions(error: any) {

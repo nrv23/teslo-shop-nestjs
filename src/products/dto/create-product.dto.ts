@@ -35,4 +35,9 @@ export class CreateProductDto {
     @IsString()
     @IsIn(["masculino","femenino","unisex","niño"])
     gender: string;
+
+    @IsString({each: true}) // cada elemento del arreglo debe ser string
+    @IsArray()
+    @IsOptional()
+    tags?: string[];
 }
