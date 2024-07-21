@@ -6,13 +6,18 @@ import { Repository } from 'typeorm';
 import { LoggerConfig } from '../common/config/logger';
 import * as bcrypt from 'bcrypt';
 import { LoginDto } from './dto/login.dto';
+import { JwtPayload } from './interfaces/jwt-payload.interface';
+import { JwtService } from '@nestjs/jwt';
+import { ConfigService } from '@nestjs/config';
 
 @Injectable()
 export class AuthService {
   private readonly logger: LoggerConfig = new LoggerConfig('auth.service');
   constructor(
     @InjectRepository(User)
-    private readonly userRepository: Repository<User>
+    private readonly userRepository: Repository<User>,
+    private readonly jwtService: JwtService,
+    private readonly configService: ConfigService
   ) {
   }
   async create(createAuthDto: CreateUserDto) {
@@ -28,7 +33,12 @@ export class AuthService {
       await this.userRepository.save(newUser);
      // delete newUser.password;
 
-      return newUser;
+      return {
+        user:newUser,
+        token: this.getJwtToken({
+          id: newUser.id
+        })
+      };
 
     } catch (error) {
       this.handleDbError(error);
@@ -40,14 +50,19 @@ export class AuthService {
       const { password, email } = loginDto;
       const user = await this.userRepository.findOne({
         where: { email },
-        select: { email: true, password: true }
+        select: { email: true, password: true, id: true }
       });
 
       if(!user) throw new UnauthorizedException("Credenciales incorrectas");
       
       const matched = bcrypt.compareSync(password,user.password);
 
-      if(matched) return user;
+      if(matched) return {
+        user,
+        token: this.getJwtToken({
+          id: user.id
+        })
+      };
 
       throw new UnauthorizedException("Credenciales incorrectas");
   }
@@ -73,4 +88,10 @@ export class AuthService {
     if (error.code === "23505") throw new BadRequestException("El usuario se registró anteriormente");
     throw new InternalServerErrorException(error.message);
   }
+
+  private getJwtToken(payload: JwtPayload) {
+    const token = this.jwtService.sign(payload);
+    return token;
+  } 
+
 }
