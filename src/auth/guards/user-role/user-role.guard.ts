@@ -23,6 +23,8 @@ export class UserRoleGuard implements CanActivate {
     const req = context.switchToHttp().getRequest();
     const validRoles: string[] = this.reflector.get(META_ROLES,context.getHandler());
     const user = req.user as User;
+    
+    if(!validRoles || validRoles.length === 0) return true;
 
     if(!user) throw new BadRequestException('Invalid token');
 
