@@ -1,8 +1,9 @@
-import { BeforeInsert, BeforeUpdate, Column, Entity, OneToMany, PrimaryGeneratedColumn } from "typeorm";
+import { BeforeInsert, BeforeUpdate, Column, Entity, ManyToOne, OneToMany, PrimaryGeneratedColumn } from "typeorm";
 import { ProductImage } from "./ProductImage.entity";
+import { User } from "../../auth/entities/user.entity";
 
 @Entity({
-    name:"products"
+    name: "products"
 })
 export class Product {
 
@@ -63,7 +64,7 @@ export class Product {
     //images 
     @OneToMany(
         () => ProductImage,
-        productImage => productImage.product ,
+        productImage => productImage.product,
         {
             cascade: true,
             eager: true // trae todos los registros que tenga relacion con esta entidad donde esta entidad sea la tabla padre 
@@ -71,23 +72,31 @@ export class Product {
     )
     images?: ProductImage[];
 
+    @ManyToOne(
+        () => User,
+        user => user.product,
+        { eager: true }
+    )
+    user: User;
+
     @BeforeInsert() // hooks de typeorm
     checkSlugInsert() {
-        
-        if(!this.slug) {
+
+        if (!this.slug) {
             this.slug = this.title;
         }
 
         this.slug = this.slug.toLocaleLowerCase()
-            .replaceAll(" ","_")
-            .replaceAll("'","");
+            .replaceAll(" ", "_")
+            .replaceAll("'", "");
     }
- 
+
+
     @BeforeUpdate() // hooks de typeorm
     checkSlugUpdate() {
-    
+
         this.slug = this.slug.toLocaleLowerCase()
-            .replaceAll(" ","_")
-            .replaceAll("'","");
+            .replaceAll(" ", "_")
+            .replaceAll("'", "");
     }
 }

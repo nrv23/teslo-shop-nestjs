@@ -26,6 +26,15 @@ export class AuthController {
     return this.authService.login(loginDto);
   }
 
+  @Get("check-auth-status")
+  @Auth()
+  checkAuthStatus(
+    @GetUserDecorator() user:User
+  ) {
+
+    return this.authService.checkAuthStatus(user);
+  }
+
   @Get("private")
   //guard para validar un token
   @UseGuards(AuthGuard())

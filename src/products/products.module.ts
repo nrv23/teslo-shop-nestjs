@@ -5,6 +5,7 @@ import { TypeOrmModule } from '@nestjs/typeorm';
 import { Product } from './entities/product.entity';
 import { CommonModule } from 'src/common/common.module';
 import { ProductImage } from './entities/ProductImage.entity';
+import { AuthModule } from 'src/auth/auth.module';
 
 @Module({
   controllers: [ProductsController],
@@ -16,7 +17,8 @@ import { ProductImage } from './entities/ProductImage.entity';
       Product,
       ProductImage
     ]),
-    CommonModule
+    CommonModule,
+    AuthModule
   ],
   exports: [
     ProductsService,
