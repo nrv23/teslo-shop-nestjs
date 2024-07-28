@@ -1,26 +1,35 @@
 import { BeforeInsert, BeforeUpdate, Column, Entity, ManyToOne, OneToMany, PrimaryGeneratedColumn } from "typeorm";
 import { ProductImage } from "./ProductImage.entity";
 import { User } from "../../auth/entities/user.entity";
+import { ApiProperty } from "@nestjs/swagger";
 
 @Entity({
     name: "products"
 })
 export class Product {
 
+    @ApiProperty({
+        description: "Product id must be uuid",
+        uniqueItems: true
+    }) // lo usa swuagger para documentar el valor de retorno en los controladores de rutas
     @PrimaryGeneratedColumn('uuid')
     id: string;
 
+    @ApiProperty() // lo usa swuagger para documentar el valor de retorno en los controladores de rutas
+    @ApiProperty() // lo usa swuagger para documentar el valor de retorno en los controladores de rutas
     @Column('varchar', {
         unique: true
     })
     title: string;
 
+    @ApiProperty() // lo usa swuagger para documentar el valor de retorno en los controladores de rutas
     @Column("decimal", {
         default: 0
     })
     price: number;
 
 
+    @ApiProperty() // lo usa swuagger para documentar el valor de retorno en los controladores de rutas
     @Column({
         type: "varchar",
         length: 500,
@@ -28,6 +37,7 @@ export class Product {
     })
     description: string;
 
+    @ApiProperty() // lo usa swuagger para documentar el valor de retorno en los controladores de rutas
     @Column({
         type: "varchar",
         unique: true,
@@ -36,6 +46,7 @@ export class Product {
     })
     slug: string;
 
+    @ApiProperty() // lo usa swuagger para documentar el valor de retorno en los controladores de rutas
     @Column({
         type: "int",
         default: 0
@@ -43,17 +54,20 @@ export class Product {
     })
     stock: number;
 
+    @ApiProperty() // lo usa swuagger para documentar el valor de retorno en los controladores de rutas
     @Column({
         type: "varchar",
         array: true
     })
     sizes: string[];
 
+    @ApiProperty() // lo usa swuagger para documentar el valor de retorno en los controladores de rutas
     @Column({
         type: "varchar"
     })
     gender: string;
 
+    @ApiProperty() // lo usa swuagger para documentar el valor de retorno en los controladores de rutas
     @Column({
         type: "varchar",
         array: true,

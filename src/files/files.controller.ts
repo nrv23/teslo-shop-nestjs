@@ -6,7 +6,9 @@ import { diskStorage } from 'multer';
 import { fileRename } from './helpers/filerRename';
 import { Response } from 'express';
 import { ConfigService } from '@nestjs/config';
+import { ApiTags } from '@nestjs/swagger';
 
+@ApiTags("Files")
 @Controller('files')
 export class FilesController {
   constructor(private readonly filesService: FilesService, private readonly configService: ConfigService) { }
