@@ -103,4 +103,22 @@ export class AuthService {
     };
   }
 
+  verifyToken(token:string) {
+    try {
+      return this.jwtService.verify(token);
+    } catch (error) {
+      return null;
+    }
+  }
+
+  async getUserById(userId: string) {
+    const user = await this.userRepository.findOneBy({
+      id: userId
+    });
+
+    if (!user) throw new Error("user not found");
+    if (!user.isActive) throw new Error("user not active");
+    console.log(user)
+    return user;
+  }
 }
